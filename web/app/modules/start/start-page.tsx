@@ -11,7 +11,8 @@ import EventCard from "../event/components/event-card";
 import SectionHeader from "../../shared/ui/section-header";
 import SidebarNav from "./components/sidebar-nav";
 import SpotlightCard from "./components/spotlight-card";
-import { cityCards, sectionDescription, spotlightCards } from "./model/data";
+import StartCover from "./components/start-cover";
+import { cityCards, sectionDescription, spotlightCards, startCover } from "./model/data";
 
 const formatStartEventDate = (value: string): string => {
   const parsed = new Date(value);
@@ -82,8 +83,10 @@ export default async function StartPage() {
           className="flex flex-1 flex-col gap-5.5 px-4 pb-8 pt-4"
           aria-label="Startsida"
         >
+          <StartCover cover={startCover} />
+
           <div className="flex flex-col gap-2">
-            <SectionHeader title="Just nu" as="h1" />
+            <SectionHeader title="Just nu" as="h2" />
             <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               {spotlightCards.map((card) => (

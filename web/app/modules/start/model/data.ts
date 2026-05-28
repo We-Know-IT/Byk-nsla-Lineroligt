@@ -1,9 +1,17 @@
+import { siteConfig } from "../../../shared/config/site.config";
+
 export type SpotlightCardData = {
   id: string;
   title: string;
   text: string;
   cta: string;
   imageSrc?: string;
+};
+
+export type StartCoverData = {
+  title: string;
+  text: string;
+  imageSrc: string;
 };
 
 export type EventCardData = {
@@ -16,8 +24,9 @@ export type EventCardData = {
   eventUrl?: string;
 };
 
-export const sectionDescription =
-  "Kort introduktionstext under varje sektion — anpassa i model/data.ts.";
+export const sectionDescription = siteConfig.startPage.sectionDescription;
+
+export const startCover: StartCoverData = siteConfig.startPage.cover;
 
 export const spotlightCards: SpotlightCardData[] = Array.from(
   { length: 3 },

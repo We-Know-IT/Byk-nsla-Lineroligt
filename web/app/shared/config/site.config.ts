@@ -120,6 +120,24 @@ export const siteConfig = {
   areaName: "Linero",
 
   /**
+   * Playful or campaign-style area name used in marketing copy.
+   * Example: areaName=Linero -> areaPlayfulName=Lineroligt.
+   */
+  areaPlayfulName: "Lineroligt",
+
+  /**
+   * Startsida copy/content. Keep all editable start-page text and media here.
+   */
+  startPage: {
+    sectionDescription: "Kort introduktionstext under varje sektion — anpassa i site.config.ts.",
+    cover: {
+      title: "Lineroligt finns här för dig",
+      text: "Lorem ipsum dolor sit amet consectetur. Nulla molestie quis aliquet lacus aliquam sit. Pretium ut lectus et accumsan.",
+      imageSrc: "/example-images/stad.jpg",
+    },
+  },
+
+  /**
    * Geography configuration for the local area.
    * Used to filter events and items to this specific area.
    */
