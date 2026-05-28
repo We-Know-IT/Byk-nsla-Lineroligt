@@ -6,7 +6,6 @@ import { getFrivilligkraftTeasers } from "../../frivilligkraft/frivilligkraft-ap
 import SamhallsbyggeCard from "../../samhallsbygge/components/samhallsbygge-card";
 import SamhallsbyggeMap from "../../samhallsbygge/components/samhallsbygge-map";
 import { getSamhallsbyggeItems } from "../../samhallsbygge/samhallsbygge-api";
-import AppTopbar from "../../shared/ui/app-topbar";
 import EventCard from "../event/components/event-card";
 import SectionHeader from "../../shared/ui/section-header";
 import SidebarNav from "./components/sidebar-nav";
@@ -74,9 +73,7 @@ export default async function StartPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <AppTopbar />
-
-      <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
+      <div className="flex min-h-screen flex-col md:flex-row">
         <SidebarNav items={navItems} activeKey="start" />
 
         <section
