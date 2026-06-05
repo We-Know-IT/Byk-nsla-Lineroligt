@@ -12,6 +12,10 @@ import SidebarNav from "./components/sidebar-nav";
 import SpotlightCard from "./components/spotlight-card";
 import StartCover from "./components/start-cover";
 import { cityCards, sectionDescription, spotlightCards, startCover } from "./model/data";
+import Image from "next/image";
+import BackgroundImage from "./components/background-image";
+import { notFound } from "next/navigation";
+import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
 
 const formatStartEventDate = (value: string): string => {
   const parsed = new Date(value);
@@ -45,6 +49,16 @@ const formatFrivilligkraftDate = (isoDate: string | null): string | null => {
 };
 
 export default async function StartPage() {
+  const isEnabled = await checkModuleEnabled("start");
+    if (!isEnabled) {
+      notFound();
+    }
+
+  const { events, error: eventError } = await getEvents();
+
+  const eventCards =
+    !eventError && events.length > 0
+      ? events.slice(0, 6).map((event) => ({
   const [
     { events, error: eventError },
     { teasers: frivilligkraftTeasers, error: frivilligkraftError },
@@ -65,6 +79,8 @@ export default async function StartPage() {
         cta: event.url ? "Mer info" : "Knapp",
         imageSrc: event.imageUrl,
         eventUrl: event.url,
+      }))
+      : cityCards;
       }));
   const startTeasers = frivilligkraftTeasers.slice(0, 3);
   const startSamhallsbygge = samhallsbyggeItems.slice(0, 3);
@@ -80,8 +96,12 @@ export default async function StartPage() {
           className="flex flex-1 flex-col gap-5.5 px-4 pb-8 pt-4"
           aria-label="Startsida"
         >
-          <StartCover cover={startCover} />
-
+          <div className="relative flex flex-col justify-end overflow-hidden rounded-2xl px-4 pb-4 w-full h-50">
+           <BackgroundImage />
+            <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-gray-900/20"></div>
+            <h3 className="z-2 mt-3 text-3xl font-bold text-white">{siteConfig.areaName}</h3>
+            <div className="z-2 gap-y-1 overflow-hidden text-sm text-gray-300 w-xs md:w-md">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+          </div>
           <div className="flex flex-col gap-2">
             <SectionHeader title="Just nu" as="h2" />
             <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
@@ -172,7 +192,7 @@ export default async function StartPage() {
             ) : null}
           </div>
         </section>
-      </div>
-    </main>
+      </div >
+    </main >
   );
 }

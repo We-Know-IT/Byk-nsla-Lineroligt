@@ -21,7 +21,25 @@ model SiteThemeSelection {
 
 model SiteNavigationPage {
   key       String   @id
-  display   Boolean  @default(true)
+  enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SiteBackground {
+  key                String                  @id
+  label              String
+  imageSrc           String
+  sortOrder          Int                     @default(0)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  selections         SiteBackgroundSelection[]
+}
+
+model SiteBackgroundSelection {
+  id                  Int             @id @default(1)
+  activeBackgroundKey  String
+  activeBackground     SiteBackground  @relation(fields: [activeBackgroundKey], references: [key], onDelete: Restrict)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 }
