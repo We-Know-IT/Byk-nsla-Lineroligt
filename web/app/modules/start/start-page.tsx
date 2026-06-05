@@ -50,15 +50,10 @@ const formatFrivilligkraftDate = (isoDate: string | null): string | null => {
 
 export default async function StartPage() {
   const isEnabled = await checkModuleEnabled("start");
-    if (!isEnabled) {
-      notFound();
-    }
+  if (!isEnabled) {
+    notFound();
+  }
 
-  const { events, error: eventError } = await getEvents();
-
-  const eventCards =
-    !eventError && events.length > 0
-      ? events.slice(0, 6).map((event) => ({
   const [
     { events, error: eventError },
     { teasers: frivilligkraftTeasers, error: frivilligkraftError },
@@ -69,19 +64,18 @@ export default async function StartPage() {
     getSamhallsbyggeItems({ area: siteConfig.areaName }),
   ]);
 
-  const eventCards = eventError
-    ? cityCards
-    : events.slice(0, 6).map((event) => ({
-        id: event.id,
-        title: event.title,
-        date: formatStartEventDate(event.date),
-        text: event.description,
-        cta: event.url ? "Mer info" : "Knapp",
-        imageSrc: event.imageUrl,
-        eventUrl: event.url,
-      }))
-      : cityCards;
-      }));
+  const eventCards =
+    eventError || events.length === 0
+      ? cityCards
+      : events.slice(0, 6).map((event) => ({
+          id: event.id,
+          title: event.title,
+          date: formatStartEventDate(event.date),
+          text: event.description,
+          cta: event.url ? "Mer info" : "Knapp",
+          imageSrc: event.imageUrl,
+          eventUrl: event.url,
+        }));
   const startTeasers = frivilligkraftTeasers.slice(0, 3);
   const startSamhallsbygge = samhallsbyggeItems.slice(0, 3);
 

@@ -20,9 +20,12 @@ export default function BackgroundSelector() {
     const { registerSaveAction, unregisterSaveAction, registerResetAction, unregisterResetAction, setHasChanges } = useSettings();
 
     const loadBackgrounds = useCallback(async () => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
         try {
-            const res = await fetch(`${apiUrl}/site-themes/backgrounds`);
+            const res = await fetch("/api/site-themes/backgrounds");
+            if (!res.ok) {
+                return;
+            }
+
             const data = await res.json();
             if (data.success && data.data) {
                 setBackgrounds(data.data.backgrounds);
@@ -45,8 +48,7 @@ export default function BackgroundSelector() {
     const handleSave = useCallback(async () => {
         if (!selectedKey || selectedKey === originalKeyRef.current) return;
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-        const res = await fetch(`${apiUrl}/site-themes/backgrounds/active`, {
+        const res = await fetch("/api/site-themes/backgrounds/active", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: selectedKey }),

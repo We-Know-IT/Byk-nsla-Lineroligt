@@ -1,6 +1,5 @@
 import { getEnabledModuleNavItems } from "../shared/config/modules";
 import { siteConfig } from "../shared/config/site.config";
-import AppTopbar from "../shared/ui/app-topbar";
 import SectionHeader from "../shared/ui/section-header";
 import SidebarNav from "../modules/start/components/sidebar-nav";
 import SamhallsbyggeCard from "./components/samhallsbygge-card";
@@ -15,9 +14,7 @@ export default async function SamhallsbyggePage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <AppTopbar />
-
-      <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
+      <div className="flex min-h-screen flex-col md:flex-row">
         <SidebarNav items={navItems} activeKey="samhallsbygge" />
 
         <section className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4" aria-label="Samhällsbyggnadssida">

@@ -15,9 +15,12 @@ export default function BackgroundImage() {
     const originalKeyRef = useRef<string | null>(null);
 
     const loadBackgrounds = useCallback(async () => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
         try {
-            const res = await fetch(`${apiUrl}/site-themes/backgrounds`);
+            const res = await fetch("/api/site-themes/backgrounds");
+            if (!res.ok) {
+                return;
+            }
+
             const data = await res.json();
             if (data.success && data.data) {
                 const activeItem = data.data.backgrounds.find((background: BackgroundPreset) => background.isActive);
