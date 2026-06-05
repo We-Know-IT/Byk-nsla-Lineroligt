@@ -25,7 +25,7 @@ export const createApp = () => {
 
   app.use(notFoundHandler);
 
-  app.use((error: unknown, _req: express.Request, res: express.Response) => {
+  app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     if (error instanceof Error) {
       return sendError(res, error.message, 500);
     }
