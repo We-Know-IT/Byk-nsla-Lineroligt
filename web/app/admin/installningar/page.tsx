@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { AdminSectionPage, adminNavItems } from "../../modules/admin";
 import ThemeSelector from "../../modules/admin/components/theme-selector";
 import StartPageSectionsSelector from "../../modules/admin/components/start-page-sections-selector";
+import BackgroundSelector from "../../modules/admin/components/background-selector";
 import PageSelector from "@/app/modules/admin/components/page-selector";
 import SectionHeader from "../../shared/ui/section-header";
 import { SettingsActionsBar, SettingsProvider } from "../../modules/admin/components/settings-context";
@@ -46,6 +47,7 @@ export default function Page() {
                             <h2 className="mb-4 text-lg font-semibold">Design</h2>
                             <div className="mt-2">
                                 <ThemeSelector />
+                                <BackgroundSelector />
                             </div>
                         </section>
                     </div>

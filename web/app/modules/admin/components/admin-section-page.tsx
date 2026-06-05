@@ -1,4 +1,3 @@
-import AppTopbar from "../../../shared/ui/app-topbar";
 import SidebarNav, { type SidebarNavItem } from "../../../modules/start/components/sidebar-nav";
 
 type AdminSectionPageProps = {
@@ -10,7 +9,6 @@ type AdminSectionPageProps = {
 export default function AdminSectionPage({ activeKey, navItems, children }: AdminSectionPageProps) {
   return (
     <main className="min-h-screen bg-background">
-      <AppTopbar />
 
       <div className="flex md:min-h-[calc(100vh-66px)] flex-col md:flex-row">
         <SidebarNav items={navItems} activeKey={activeKey} ariaLabel="Adminnavigation" />

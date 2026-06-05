@@ -12,7 +12,7 @@ const readPageMap = (value: unknown): Record<string, boolean> | null => {
   }
 
   const entries = Object.entries(value);
-  if (entries.some(([, display]) => typeof display !== "boolean")) {
+  if (entries.some(([, enabled]) => typeof enabled !== "boolean")) {
     return null;
   }
 

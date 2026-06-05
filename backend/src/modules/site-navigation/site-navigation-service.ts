@@ -1,7 +1,7 @@
 import { SiteNavigationRepository } from "./site-navigation-repository.js";
 
-const toPageMap = (pages: Array<{ key: string; display: boolean }>) =>
-  Object.fromEntries(pages.map((page) => [page.key, page.display]));
+const toPageMap = (pages: Array<{ key: string; enabled: boolean }>) =>
+  Object.fromEntries(pages.map((page) => [page.key, page.enabled]));
 
 export class SiteNavigationService {
   constructor(private readonly repository = new SiteNavigationRepository()) {}
@@ -12,9 +12,9 @@ export class SiteNavigationService {
   }
 
   async saveNavigationState(pages: Record<string, boolean>) {
-    const entries = Object.entries(pages).map(([key, display]) => ({
+    const entries = Object.entries(pages).map(([key, enabled]) => ({
       key,
-      display,
+      enabled,
     }));
 
     await this.repository.savePages(entries);
