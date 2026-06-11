@@ -74,10 +74,10 @@ export default async function StartPage() {
   const startSamhallsbygge = samhallsbyggeItems.slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
+    <main className="min-h-screen min-w-0 bg-background">
+      <div className="flex min-h-[calc(100vh-66px)] min-w-0 flex-col md:flex-row">
         <section
-          className="flex flex-1 flex-col gap-5.5 px-4 pb-8 pt-4"
+          className="flex min-w-0 flex-1 flex-col gap-5.5 px-4 pb-8 pt-4"
           aria-label="Startsida"
         >
           <Hero
@@ -121,10 +121,14 @@ export default async function StartPage() {
                 <p>Visar exempeldata tills tjänsten är tillgänglig.</p>
               </div>
             ) : null}
-            <div className="grid auto-cols-[188px] grid-flow-col gap-2 overflow-x-auto pb-0.5">
-              {eventCards.map((card) => (
-                <EventCard key={card.id} card={card} />
-              ))}
+            <div className="min-w-0 w-full overflow-x-auto pb-0.5">
+              <div className="flex w-max gap-2">
+                {eventCards.map((card) => (
+                  <div key={card.id} className="w-[188px] shrink-0">
+                    <EventCard card={card} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

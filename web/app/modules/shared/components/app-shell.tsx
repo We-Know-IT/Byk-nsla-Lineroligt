@@ -24,7 +24,7 @@ export default function AppShell({
         items={navItems}
         ariaLabel={isAdmin ? "Adminnavigation" : undefined}
       />
-      <main className="flex-1 min-h-screen overflow-y-auto">{children}</main>
+      <main className="min-w-0 flex-1 min-h-screen overflow-x-hidden overflow-y-auto">{children}</main>
     </>
   );
 }
