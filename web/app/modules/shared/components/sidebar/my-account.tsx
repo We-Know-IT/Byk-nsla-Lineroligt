@@ -10,7 +10,7 @@ export default function MyAccount({ userName }: MyAccountProps) {
 
     return (
 
-        <div className="relative flex w-full flex-col" onClick={() => setIsOpen(!isOpen)}>
+        <div className="relative flex w-full flex-col overflow-hidden" onClick={() => setIsOpen(!isOpen)}>
             <div
                 className={cn(
                     "flex w-full items-center justify-between p-1 border border-border bg-surface leading-snug",

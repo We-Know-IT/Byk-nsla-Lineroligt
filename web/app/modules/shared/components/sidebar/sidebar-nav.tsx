@@ -4,7 +4,7 @@ import { cn } from "../../../../shared/utils/cn";
 import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import MyAccount from "./my-account";
-import SidebarLogo from "./sidebar-logo"; 
+import SidebarLogo from "./sidebar-logo";
 
 export type SidebarNavItem = {
   key: string;
@@ -169,9 +169,9 @@ export default function SidebarNav({ items, ariaLabel }: SidebarNavProps) {
 
           <div className={cn(
             "mt-auto",
-            isOpen ? "" : "hidden",
-
-            )}>
+            isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+            "transition-opacity duration-300 ease-in-out"
+          )}>
             <MyAccount />
           </div>
 
