@@ -1,5 +1,5 @@
-import UnderConstructionPage from "../shared/ui/under-construction-page";
+import { SamhallsbyggePage } from "../modules/samhallsbygge";
 
-export default async function ByggPage() {
-  return <UnderConstructionPage activeKey="bygg" title="Bygg & utveckling" />;
+export default async function ByggRoutePage() {
+  return <SamhallsbyggePage />;
 }

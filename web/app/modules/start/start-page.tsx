@@ -1,15 +1,10 @@
 import { siteConfig } from "../../shared/config/site.config";
 import { getEvents } from "../event/event-api";
-import FrivilligkraftCard from "../../frivilligkraft/components/frivilligkraft-card";
-import { getFrivilligkraftTeasers } from "../../frivilligkraft/frivilligkraft-api";
-import SamhallsbyggeCard from "../../samhallsbygge/components/samhallsbygge-card";
 import SamhallsbyggeMap from "../../samhallsbygge/components/samhallsbygge-map";
 import { getSamhallsbyggeItems } from "../../samhallsbygge/samhallsbygge-api";
 import EventCard from "../event/components/event-card";
-import MapView from "./components/map-view";
 import SectionHeader from "../../shared/ui/section-header";
-import SpotlightCard from "./components/spotlight-card";
-import { cityCards, sectionDescription, spotlightCards } from "./model/data";
+import { cityCards, sectionDescription } from "./model/data";
 import { notFound } from "next/navigation";
 import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
 import Hero from "../shared/components/hero/hero";
@@ -28,38 +23,17 @@ const formatStartEventDate = (value: string): string => {
   }).format(parsed);
 };
 
-const formatFrivilligkraftDate = (isoDate: string | null): string | null => {
-  if (!isoDate) {
-    return null;
-  }
-
-  const parsed = new Date(isoDate);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-
-  return new Intl.DateTimeFormat("sv-SE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(parsed);
-};
-
 export default async function StartPage() {
   const isEnabled = await checkModuleEnabled("start");
   if (!isEnabled) {
     notFound();
   }
 
-  const [
-    { events, error: eventError },
-    { teasers: frivilligkraftTeasers, error: frivilligkraftError },
-    { items: samhallsbyggeItems, error: samhallsbyggeError },
-  ] = await Promise.all([
-    getEvents(),
-    getFrivilligkraftTeasers(),
-    getSamhallsbyggeItems({ area: siteConfig.areaName }),
-  ]);
+  const [{ events, error: eventError }, { items: samhallsbyggeItems, error: samhallsbyggeError }] =
+    await Promise.all([
+      getEvents(),
+      getSamhallsbyggeItems({ area: siteConfig.areaName }),
+    ]);
 
   const eventCards =
     !eventError && events.length > 0
@@ -73,7 +47,6 @@ export default async function StartPage() {
           eventUrl: event.url,
         }))
       : cityCards;
-  const startTeasers = frivilligkraftTeasers.slice(0, 3);
   const startSamhallsbygge = samhallsbyggeItems.slice(0, 3);
 
   return (
@@ -91,24 +64,7 @@ export default async function StartPage() {
           />
 
           <div className="flex flex-col gap-2">
-            <SectionHeader title="Just nu" as="h2" />
-            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              {spotlightCards.map((card) => (
-                <SpotlightCard key={card.id} card={card} />
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <SectionHeader title="Kartan" withAction />
-            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
-            <MapView />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <SectionHeader title="Samhällsbyggande nära dig" withAction />
-            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
+            <SectionHeader title={`Vad händer i ${siteConfig.areaName}?`} withAction />
             <SamhallsbyggeMap items={startSamhallsbygge} />
             {samhallsbyggeError ? (
               <div
@@ -126,17 +82,10 @@ export default async function StartPage() {
                 <p>Inga samhällsbyggnadsärenden hittades just nu.</p>
               </div>
             ) : null}
-            {!samhallsbyggeError && startSamhallsbygge.length > 0 ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {startSamhallsbygge.map((item) => (
-                  <SamhallsbyggeCard key={item.id} item={item} />
-                ))}
-              </div>
-            ) : null}
           </div>
 
           <div className="flex flex-col gap-2">
-            <SectionHeader title={`Vad händer i ${siteConfig.areaName} idag?`} withAction />
+            <SectionHeader title={`På gång i ${siteConfig.areaName}`} withAction />
             <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
             {eventError ? (
               <div
@@ -152,38 +101,6 @@ export default async function StartPage() {
                 <EventCard key={card.id} card={card} />
               ))}
             </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <SectionHeader title="Frivilligkraft nära dig" withAction />
-            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
-            {frivilligkraftError ? (
-              <div
-                className="max-w-130 rounded-[10px] border border-border bg-surface p-5.5 shadow-[0_1px_2px_rgb(0_0_0/0.07)] [&_p]:m-0 [&_p]:text-[15px] [&_p]:leading-snug [&_p]:text-foreground-muted"
-                role="status"
-              >
-                <p>{frivilligkraftError}</p>
-              </div>
-            ) : null}
-            {!frivilligkraftError && startTeasers.length === 0 ? (
-              <div
-                className="max-w-130 rounded-[10px] border border-border bg-surface p-5.5 shadow-[0_1px_2px_rgb(0_0_0/0.07)] [&_p]:m-0 [&_p]:text-[15px] [&_p]:leading-snug [&_p]:text-foreground-muted"
-                role="status"
-              >
-                <p>Inga frivilliguppdrag finns tillgängliga just nu.</p>
-              </div>
-            ) : null}
-            {!frivilligkraftError && startTeasers.length > 0 ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {startTeasers.map((teaser) => (
-                  <FrivilligkraftCard
-                    key={teaser.id}
-                    teaser={teaser}
-                    dateLabel={formatFrivilligkraftDate(teaser.startDate)}
-                  />
-                ))}
-              </div>
-            ) : null}
           </div>
         </section>
       </div>

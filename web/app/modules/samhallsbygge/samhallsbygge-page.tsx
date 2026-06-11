@@ -1,10 +1,10 @@
-import { siteConfig } from "../shared/config/site.config";
-import SectionHeader from "../shared/ui/section-header";
-import SamhallsbyggeCard from "./components/samhallsbygge-card";
-import SamhallsbyggeMap from "./components/samhallsbygge-map";
-import { getSamhallsbyggeItems } from "./samhallsbygge-api";
+import { siteConfig } from "../../shared/config/site.config";
+import SectionHeader from "../../shared/ui/section-header";
+import SamhallsbyggeCard from "../../samhallsbygge/components/samhallsbygge-card";
+import SamhallsbyggeMap from "../../samhallsbygge/components/samhallsbygge-map";
+import { getSamhallsbyggeItems } from "../../samhallsbygge/samhallsbygge-api";
 import { notFound } from "next/navigation";
-import { checkModuleEnabled } from "../api/site-navigation/routeGuard";
+import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
 
 export default async function SamhallsbyggePage() {
   const isEnabled = await checkModuleEnabled("bygg");
@@ -17,9 +17,9 @@ export default async function SamhallsbyggePage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
-        <section className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4" aria-label="Samhällsbyggnadssida">
+        <section className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4" aria-label="Bygg och utveckling">
           <div className="flex flex-col gap-2">
-            <SectionHeader title={`Samhällsbyggande i ${siteConfig.areaName}`} as="h1" />
+            <SectionHeader title={`Bygg & utveckling i ${siteConfig.areaName}`} as="h1" />
             <p className="m-0 text-sm leading-snug text-foreground-muted">
               Visar aktuella ärenden från Lunds geoportal filtrerat på området {siteConfig.areaName}.
             </p>

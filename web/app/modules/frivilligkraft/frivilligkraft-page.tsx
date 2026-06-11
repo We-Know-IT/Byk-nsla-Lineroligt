@@ -1,9 +1,9 @@
-import { siteConfig } from "../shared/config/site.config";
-import SectionHeader from "../shared/ui/section-header";
-import FrivilligkraftCard from "./components/frivilligkraft-card";
-import { getFrivilligkraftTeasers } from "./frivilligkraft-api";
+import { siteConfig } from "../../shared/config/site.config";
+import SectionHeader from "../../shared/ui/section-header";
+import FrivilligkraftCard from "../../frivilligkraft/components/frivilligkraft-card";
+import { getFrivilligkraftTeasers } from "../../frivilligkraft/frivilligkraft-api";
 import { notFound } from "next/navigation";
-import { checkModuleEnabled } from "../api/site-navigation/routeGuard";
+import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
 
 const formatDate = (isoDate: string | null): string | null => {
   if (!isoDate) {
@@ -22,7 +22,7 @@ const formatDate = (isoDate: string | null): string | null => {
   }).format(parsed);
 };
 
-export default async function FrivilligkraftRoutePage() {
+export default async function FrivilligkraftPage() {
   const isEnabled = await checkModuleEnabled("hjalptill");
   if (!isEnabled) {
     notFound();
@@ -33,9 +33,9 @@ export default async function FrivilligkraftRoutePage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
-        <section className="flex flex-1 flex-col gap-4 px-4 pb-8 pt-4" aria-label="Frivilligkraftsida">
+        <section className="flex flex-1 flex-col gap-4 px-4 pb-8 pt-4" aria-label="Hjälp till">
           <div className="flex flex-col gap-2">
-            <SectionHeader title={`Frivilligkraft i ${siteConfig.areaName}`} as="h1" />
+            <SectionHeader title={`Hjälp till i ${siteConfig.areaName}`} as="h1" />
             <p className="m-0 text-sm leading-snug text-foreground-muted">
               Hitta aktuella volontäruppdrag i ditt närområde.
             </p>
