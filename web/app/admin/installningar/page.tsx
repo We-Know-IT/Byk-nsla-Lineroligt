@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { AdminSectionPage, adminNavItems } from "../../modules/admin";
+import { AdminSectionPage } from "../../modules/admin";
 import ThemeSelector from "../../modules/admin/components/theme-selector";
 import StartPageSectionsSelector from "../../modules/admin/components/start-page-sections-selector";
 import BackgroundSelector from "../../modules/admin/components/background-selector";
@@ -22,7 +22,7 @@ export default function Page() {
     }, []);
 
     return (
-        <AdminSectionPage activeKey="installningar" navItems={adminNavItems}>
+        <AdminSectionPage>
             <div className="relative flex flex-col pt-1">
                 <SettingsProvider>
                     <SectionHeader title="Inställningar" as="h1" />

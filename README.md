@@ -1,6 +1,6 @@
-# Bykänsla - Linero
+# Bykänsla
 
-Bykänsla - Linero är en **digital lokal plattform** för stadsdelen Linero i Lund. Projektet bygger på den öppna kodbasen [Bykänsla](https://github.com/) (återanvändbar kärna för byar och lokala sammanhang) och är anpassat med egen identitet, texter och geografisk konfiguration för Linero. Lokala datakällor kopplas via tydliga backend-adapters.
+Bykänsla är en öppen kodbas för en **digital lokal plattform** för byar och andra lokala sammanhang - en gemensam kärna som ska kunna återanvändas och anpassas utan att skrivas om från grunden. Det här repot är avsett som **startpunkt**: gör en fork, sätt egen identitet och konfiguration för din plats och koppla lokala datakällor via tydliga backend-adapters.
 
 ## Prerequisites
 
@@ -50,7 +50,7 @@ Never commit real secrets; keep them in local `.env` files (they are gitignored 
 ## Repository layout
 
 ```text
-Linero/
+Bykänsla/
 ├── backend/          # Express API (adapters, modules, routes)
 ├── web/              # Next.js App Router UI + BFF-style API routes
 ├── temp-docs/        # Scratch / internal docs (optional)

@@ -68,7 +68,7 @@ export default function EventListingClient({ cards }: EventListingClientProps) {
       <div className="grid grid-cols-5 gap-3 max-[1300px]:grid-cols-4 max-[980px]:grid-cols-2">
         {filteredCards.length === 0 ? (
           <p className="col-span-full m-0 px-2 py-5 text-center text-[15px] text-foreground-muted">
-            Inga evenemang matchar dina filter.
+            Inga evenemang matchar dina val.
           </p>
         ) : (
           filteredCards.map((card) => <EventGridCard key={card.id} card={card} />)

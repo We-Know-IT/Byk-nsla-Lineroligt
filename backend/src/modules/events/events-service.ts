@@ -1,28 +1,11 @@
-import type { EventsAdapter, ExternalEvent } from "../../adapters/contracts/events-adapter.js";
-
-const DEFAULT_AREA_NAME = "Linero";
-
-const normalizeArea = (value: string): string => value.trim().toLocaleLowerCase("sv-SE");
-
-const filterEventsForArea = (
-  events: ExternalEvent[],
-  areaName: string = DEFAULT_AREA_NAME,
-): ExternalEvent[] => {
-  const target = normalizeArea(areaName);
-  const matched = events.filter(
-    (event) => normalizeArea(event.locationLabel ?? "") === target,
-  );
-  return matched.length > 0 ? matched : events;
-};
+import type { EventsAdapter } from "../../adapters/contracts/events-adapter.js";
 
 export class EventsService {
   constructor(private readonly adapter: EventsAdapter) {}
 
   async listEvents() {
     const events = await this.adapter.getEvents();
-    const filtered = filterEventsForArea(events);
-
-    return filtered.map((event) => ({
+    return events.map((event) => ({
       id: event.id,
       title: event.title,
       date: event.date,
@@ -30,7 +13,6 @@ export class EventsService {
       imageUrl: event.imageUrl,
       url: event.url,
       locationLabel: event.locationLabel,
-      category: event.category,
     }));
   }
 }

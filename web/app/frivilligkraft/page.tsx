@@ -1,9 +1,9 @@
-import { getEnabledModuleNavItems } from "../shared/config/modules";
 import { siteConfig } from "../shared/config/site.config";
 import SectionHeader from "../shared/ui/section-header";
-import SidebarNav from "../modules/start/components/sidebar-nav";
 import FrivilligkraftCard from "./components/frivilligkraft-card";
 import { getFrivilligkraftTeasers } from "./frivilligkraft-api";
+import { notFound } from "next/navigation";
+import { checkModuleEnabled } from "../api/site-navigation/routeGuard";
 
 const formatDate = (isoDate: string | null): string | null => {
   if (!isoDate) {
@@ -23,16 +23,16 @@ const formatDate = (isoDate: string | null): string | null => {
 };
 
 export default async function FrivilligkraftRoutePage() {
-  const [{ teasers, error }, navItems] = await Promise.all([
-    getFrivilligkraftTeasers(),
-    getEnabledModuleNavItems(),
-  ]);
+  const isEnabled = await checkModuleEnabled("hjalptill");
+  if (!isEnabled) {
+    notFound();
+  }
+
+  const { teasers, error } = await getFrivilligkraftTeasers();
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="flex min-h-screen flex-col md:flex-row">
-        <SidebarNav items={navItems} activeKey="frivilligkraft" />
-
+      <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
         <section className="flex flex-1 flex-col gap-4 px-4 pb-8 pt-4" aria-label="Frivilligkraftsida">
           <div className="flex flex-col gap-2">
             <SectionHeader title={`Frivilligkraft i ${siteConfig.areaName}`} as="h1" />

@@ -1,4 +1,3 @@
-import { getEnabledModuleNavItems } from "../../shared/config/modules";
 import { siteConfig } from "../../shared/config/site.config";
 import { getEvents } from "../event/event-api";
 import FrivilligkraftCard from "../../frivilligkraft/components/frivilligkraft-card";
@@ -7,15 +6,13 @@ import SamhallsbyggeCard from "../../samhallsbygge/components/samhallsbygge-card
 import SamhallsbyggeMap from "../../samhallsbygge/components/samhallsbygge-map";
 import { getSamhallsbyggeItems } from "../../samhallsbygge/samhallsbygge-api";
 import EventCard from "../event/components/event-card";
+import MapView from "./components/map-view";
 import SectionHeader from "../../shared/ui/section-header";
-import SidebarNav from "./components/sidebar-nav";
 import SpotlightCard from "./components/spotlight-card";
-import StartCover from "./components/start-cover";
-import { cityCards, sectionDescription, spotlightCards, startCover } from "./model/data";
-import Image from "next/image";
-import BackgroundImage from "./components/background-image";
+import { cityCards, sectionDescription, spotlightCards } from "./model/data";
 import { notFound } from "next/navigation";
 import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
+import Hero from "../shared/components/hero/hero";
 
 const formatStartEventDate = (value: string): string => {
   const parsed = new Date(value);
@@ -65,9 +62,8 @@ export default async function StartPage() {
   ]);
 
   const eventCards =
-    eventError || events.length === 0
-      ? cityCards
-      : events.slice(0, 6).map((event) => ({
+    !eventError && events.length > 0
+      ? events.slice(0, 6).map((event) => ({
           id: event.id,
           title: event.title,
           date: formatStartEventDate(event.date),
@@ -75,27 +71,25 @@ export default async function StartPage() {
           cta: event.url ? "Mer info" : "Knapp",
           imageSrc: event.imageUrl,
           eventUrl: event.url,
-        }));
+        }))
+      : cityCards;
   const startTeasers = frivilligkraftTeasers.slice(0, 3);
   const startSamhallsbygge = samhallsbyggeItems.slice(0, 3);
 
-  const navItems = await getEnabledModuleNavItems();
-
   return (
     <main className="min-h-screen bg-background">
-      <div className="flex min-h-screen flex-col md:flex-row">
-        <SidebarNav items={navItems} activeKey="start" />
-
+      <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
         <section
           className="flex flex-1 flex-col gap-5.5 px-4 pb-8 pt-4"
           aria-label="Startsida"
         >
-          <div className="relative flex flex-col justify-end overflow-hidden rounded-2xl px-4 pb-4 w-full h-50">
-           <BackgroundImage />
-            <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-gray-900/20"></div>
-            <h3 className="z-2 mt-3 text-3xl font-bold text-white">{siteConfig.areaName}</h3>
-            <div className="z-2 gap-y-1 overflow-hidden text-sm text-gray-300 w-xs md:w-md">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
-          </div>
+          <Hero
+            description={`Tillsammans skapar vi ett tryggt, levande och inkludernade ${siteConfig.areaName} - varje dag`}
+            greeting={true}
+            infoBar={true}
+            weatherInfo={true}
+          />
+
           <div className="flex flex-col gap-2">
             <SectionHeader title="Just nu" as="h2" />
             <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
@@ -104,6 +98,12 @@ export default async function StartPage() {
                 <SpotlightCard key={card.id} card={card} />
               ))}
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <SectionHeader title="Kartan" withAction />
+            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
+            <MapView />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -186,7 +186,7 @@ export default async function StartPage() {
             ) : null}
           </div>
         </section>
-      </div >
-    </main >
+      </div>
+    </main>
   );
 }

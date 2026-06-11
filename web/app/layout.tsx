@@ -3,6 +3,9 @@ import type { CSSProperties } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { siteConfig, siteThemeCssVars } from "./shared/config/site.config";
 import "./globals.css";
+import { getEnabledModuleNavItems } from "./shared/config/modules";
+import { adminNavItems } from "./modules/admin/model/navigation";
+import AppShell from "./modules/shared/components/app-shell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,14 +43,19 @@ export default async function RootLayout({
     console.error("Failed to fetch active theme for layout", error);
   }
 
+  const navItems = await getEnabledModuleNavItems();
+
+
   return (
     <html
       lang={siteConfig.htmlLang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       style={siteThemeCssVars(theme) as CSSProperties}
     >
-      <body className="m-0 min-h-full flex flex-col bg-surface font-sans text-foreground">
-        {children}
+      <body className="m-0 min-h-full flex flex-row bg-surface font-sans text-foreground">
+        <AppShell publicNavItems={navItems} adminNavItems={adminNavItems}>
+          {children}
+        </AppShell>
       </body>
     </html>
   );

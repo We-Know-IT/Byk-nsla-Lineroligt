@@ -45,12 +45,15 @@ export default function BackgroundImage() {
         }, [loadBackgrounds]);
 
     return (
+        <>
         <Image
             src={backgroundUrl || "/example-images/Strand.png"}
             alt="Bild som visar en översikt av byn"
-            className="absolute inset-0 object-cover object-center"
+            className="absolute inset-0 object-cover"
             fill
             loading={loading ? "eager" : "lazy"}
         />
+        <div className="absolute inset-0 bg-linear-to-t from-[#461F0170] to-[#461F0150]" />
+        </>
     );
 }

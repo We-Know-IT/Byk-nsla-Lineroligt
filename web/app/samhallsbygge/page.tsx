@@ -1,22 +1,22 @@
-import { getEnabledModuleNavItems } from "../shared/config/modules";
 import { siteConfig } from "../shared/config/site.config";
 import SectionHeader from "../shared/ui/section-header";
-import SidebarNav from "../modules/start/components/sidebar-nav";
 import SamhallsbyggeCard from "./components/samhallsbygge-card";
 import SamhallsbyggeMap from "./components/samhallsbygge-map";
 import { getSamhallsbyggeItems } from "./samhallsbygge-api";
+import { notFound } from "next/navigation";
+import { checkModuleEnabled } from "../api/site-navigation/routeGuard";
 
 export default async function SamhallsbyggePage() {
-  const [{ items, error }, navItems] = await Promise.all([
-    getSamhallsbyggeItems({ area: siteConfig.areaName }),
-    getEnabledModuleNavItems(),
-  ]);
+  const isEnabled = await checkModuleEnabled("bygg");
+  if (!isEnabled) {
+    notFound();
+  }
+
+  const { items, error } = await getSamhallsbyggeItems({ area: siteConfig.areaName });
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="flex min-h-screen flex-col md:flex-row">
-        <SidebarNav items={navItems} activeKey="samhallsbygge" />
-
+      <div className="flex min-h-[calc(100vh-66px)] flex-col md:flex-row">
         <section className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4" aria-label="Samhällsbyggnadssida">
           <div className="flex flex-col gap-2">
             <SectionHeader title={`Samhällsbyggande i ${siteConfig.areaName}`} as="h1" />
