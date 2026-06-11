@@ -13,6 +13,7 @@ export class EventsService {
       imageUrl: event.imageUrl,
       url: event.url,
       locationLabel: event.locationLabel,
+      category: event.category,
     }));
   }
 }

@@ -6,6 +6,7 @@ export type ExternalEvent = {
   imageUrl?: string;
   url?: string;
   locationLabel?: string;
+  category?: string;
 };
 
 export interface EventsAdapter {
