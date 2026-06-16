@@ -6,7 +6,7 @@ import StartMap from "./components/start-map";
 import { getSamhallsbyggeItems } from "../../samhallsbygge/samhallsbygge-api";
 import EventCard from "../event/components/event-card";
 import SectionHeader from "../../shared/ui/section-header";
-import { cityCards, sectionDescription } from "./model/data";
+import { cityCards } from "./model/data";
 import { notFound } from "next/navigation";
 import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
 import Hero from "../shared/components/hero/hero";
@@ -93,7 +93,6 @@ export default async function StartPage() {
 
           <div className="flex flex-col gap-2">
             <SectionHeader title={`Vad händer i ${siteConfig.areaName}?`} withAction />
-            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
             <StartMap
               items={startSamhallsbygge}
               missions={frivilligkraftError ? [] : frivilligkraftMissions}
@@ -119,7 +118,6 @@ export default async function StartPage() {
 
           <div className="flex flex-col gap-2">
             <SectionHeader title={`På gång i ${siteConfig.areaName}`} withAction />
-            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
             {eventError ? (
               <div
                 className="max-w-130 rounded-[10px] border border-border bg-surface p-5.5 shadow-[0_1px_2px_rgb(0_0_0/0.07)] [&_p]:m-0 [&_p]:text-[15px] [&_p]:leading-snug [&_p]:text-foreground-muted"
@@ -142,7 +140,6 @@ export default async function StartPage() {
 
           <div className="flex flex-col gap-2">
             <SectionHeader title="Hjälp till nära dig" withAction />
-            <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
             {frivilligkraftError ? (
               <div
                 className="max-w-130 rounded-[10px] border border-border bg-surface p-5.5 shadow-[0_1px_2px_rgb(0_0_0/0.07)] [&_p]:m-0 [&_p]:text-[15px] [&_p]:leading-snug [&_p]:text-foreground-muted"
