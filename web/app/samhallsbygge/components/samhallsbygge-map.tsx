@@ -155,7 +155,6 @@ export default function SamhallsbyggeMap({
     const polygonLayerIds: string[] = [];
     const polygonSourceIds: string[] = [];
     const cleanupListeners: Array<() => void> = [];
-    const coordinatesForBounds: [number, number][] = [];
 
     const syncMapData = () => {
       if (showBygg) {
@@ -165,7 +164,6 @@ export default function SamhallsbyggeMap({
           }
           const center = getCenter(item.geometry);
           if (center) {
-            coordinatesForBounds.push(center);
             const markerElement = createByggMarkerElement();
             markerElement.title = item.title;
             const marker = new mapboxgl.Marker(markerElement)
@@ -244,7 +242,6 @@ export default function SamhallsbyggeMap({
           missions,
           center: siteConfig.geography.center,
         });
-        coordinatesForBounds.push(siteConfig.geography.center);
         cleanupListeners.push(removeAggregate);
       }
 
@@ -253,16 +250,16 @@ export default function SamhallsbyggeMap({
           events: eventItems,
           center: siteConfig.geography.center,
         });
-        coordinatesForBounds.push(siteConfig.geography.center);
         cleanupListeners.push(removeAggregate);
       }
 
-      if (!hasFittedRef.current && coordinatesForBounds.length > 1) {
-        const bounds = coordinatesForBounds.reduce(
-          (acc, [lng, lat]) => acc.extend([lng, lat]),
-          new mapboxgl.LngLatBounds(coordinatesForBounds[0], coordinatesForBounds[0]),
+      if (!hasFittedRef.current) {
+        const { minLng, minLat, maxLng, maxLat } = siteConfig.geography.bounds;
+        const bounds = new mapboxgl.LngLatBounds(
+          [minLng, minLat],
+          [maxLng, maxLat],
         );
-        map.fitBounds(bounds as LngLatBoundsLike, { padding: 40, maxZoom: 14 });
+        map.fitBounds(bounds as LngLatBoundsLike, { padding: 15, maxZoom: 14 });
         hasFittedRef.current = true;
       }
     };

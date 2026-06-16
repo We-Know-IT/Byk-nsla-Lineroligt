@@ -143,9 +143,9 @@ export const siteConfig = {
   geography: {
     // Linero, Lund — center near Linero torg / stadsdelen
     center: [13.2422, 55.6944] as [number, number], // [longitude, latitude]
-    maxDistanceKm: 4,
+    maxDistanceKm: 3,
     bounds: {
-      minLng: 13.21,
+      minLng: 13.25,
       maxLng: 13.27,
       minLat: 55.68,
       maxLat: 55.71,
