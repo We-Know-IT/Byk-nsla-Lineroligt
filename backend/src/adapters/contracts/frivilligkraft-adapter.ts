@@ -29,6 +29,17 @@ export type ExternalFrivilligkraftMissionTeaser = {
   missionFrequency?: ExternalFrivilligkraftMissionFrequency;
 };
 
+export type FrivilligkraftMissionQuery = {
+  geoLocationIds: number[];
+  skip: number;
+  take: number;
+};
+
+export type ExternalFrivilligkraftMissionPage = {
+  data: ExternalFrivilligkraftMissionTeaser[];
+  totalCount: number;
+};
+
 export interface FrivilligkraftAdapter {
-  getMissionTeasers(): Promise<ExternalFrivilligkraftMissionTeaser[]>;
+  getOpenMissions(query: FrivilligkraftMissionQuery): Promise<ExternalFrivilligkraftMissionPage>;
 }

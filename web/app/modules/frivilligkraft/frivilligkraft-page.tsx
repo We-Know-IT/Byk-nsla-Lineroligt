@@ -1,26 +1,9 @@
 import { siteConfig } from "../../shared/config/site.config";
 import SectionHeader from "../../shared/ui/section-header";
-import FrivilligkraftCard from "../../frivilligkraft/components/frivilligkraft-card";
-import { getFrivilligkraftTeasers } from "../../frivilligkraft/frivilligkraft-api";
+import FrivilligkraftMissionList from "../../frivilligkraft/components/frivilligkraft-mission-list";
+import { getFrivilligkraftMissions } from "../../frivilligkraft/frivilligkraft-api";
 import { notFound } from "next/navigation";
 import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
-
-const formatDate = (isoDate: string | null): string | null => {
-  if (!isoDate) {
-    return null;
-  }
-
-  const parsed = new Date(isoDate);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-
-  return new Intl.DateTimeFormat("sv-SE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(parsed);
-};
 
 export default async function FrivilligkraftPage() {
   const isEnabled = await checkModuleEnabled("hjalptill");
@@ -28,7 +11,12 @@ export default async function FrivilligkraftPage() {
     notFound();
   }
 
-  const { teasers, error } = await getFrivilligkraftTeasers();
+  const { geoLocationIds, pageSize } = siteConfig.frivilligkraft;
+  const { missions, totalCount, error } = await getFrivilligkraftMissions({
+    geoLocationIds,
+    skip: 0,
+    take: pageSize,
+  });
 
   return (
     <main className="min-h-screen bg-background">
@@ -50,7 +38,7 @@ export default async function FrivilligkraftPage() {
             </div>
           ) : null}
 
-          {!error && teasers.length === 0 ? (
+          {!error && missions.length === 0 ? (
             <div
               className="max-w-130 rounded-[10px] border border-border bg-surface p-5.5 shadow-[0_1px_2px_rgb(0_0_0/0.07)] [&_p]:m-0 [&_p]:text-[15px] [&_p]:leading-snug [&_p]:text-foreground-muted"
               role="status"
@@ -59,12 +47,13 @@ export default async function FrivilligkraftPage() {
             </div>
           ) : null}
 
-          {!error && teasers.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {teasers.map((teaser) => (
-                <FrivilligkraftCard key={teaser.id} teaser={teaser} dateLabel={formatDate(teaser.startDate)} />
-              ))}
-            </div>
+          {!error && missions.length > 0 ? (
+            <FrivilligkraftMissionList
+              initialMissions={missions}
+              totalCount={totalCount}
+              geoLocationIds={geoLocationIds}
+              pageSize={pageSize}
+            />
           ) : null}
         </section>
       </div>

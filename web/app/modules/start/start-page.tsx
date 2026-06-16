@@ -1,7 +1,7 @@
 import { siteConfig } from "../../shared/config/site.config";
 import { getEvents } from "../event/event-api";
 import FrivilligkraftCard from "../../frivilligkraft/components/frivilligkraft-card";
-import { getFrivilligkraftTeasers } from "../../frivilligkraft/frivilligkraft-api";
+import { getFrivilligkraftMissions } from "../../frivilligkraft/frivilligkraft-api";
 import SamhallsbyggeMap from "../../samhallsbygge/components/samhallsbygge-map";
 import { getSamhallsbyggeItems } from "../../samhallsbygge/samhallsbygge-api";
 import EventCard from "../event/components/event-card";
@@ -50,11 +50,15 @@ export default async function StartPage() {
 
   const [
     { events, error: eventError },
-    { teasers: frivilligkraftTeasers, error: frivilligkraftError },
+    { missions: frivilligkraftMissions, error: frivilligkraftError },
     { items: samhallsbyggeItems, error: samhallsbyggeError },
   ] = await Promise.all([
     getEvents(),
-    getFrivilligkraftTeasers(),
+    getFrivilligkraftMissions({
+      geoLocationIds: siteConfig.frivilligkraft.geoLocationIds,
+      skip: 0,
+      take: siteConfig.frivilligkraft.startTeaserCount,
+    }),
     getSamhallsbyggeItems({ area: siteConfig.areaName }),
   ]);
 
@@ -70,7 +74,7 @@ export default async function StartPage() {
           eventUrl: event.url,
         }))
       : cityCards;
-  const startTeasers = frivilligkraftTeasers.slice(0, 3);
+  const startTeasers = frivilligkraftMissions;
   const startSamhallsbygge = samhallsbyggeItems.slice(0, 3);
 
   return (
