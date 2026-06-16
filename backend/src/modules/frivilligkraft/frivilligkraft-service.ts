@@ -1,4 +1,8 @@
-import type { FrivilligkraftAdapter } from "../../adapters/contracts/frivilligkraft-adapter.js";
+import type {
+  ExternalFrivilligkraftMissionTeaser,
+  FrivilligkraftAdapter,
+  FrivilligkraftMissionQuery,
+} from "../../adapters/contracts/frivilligkraft-adapter.js";
 
 export type FrivilligkraftTeaser = {
   id: string;
@@ -97,49 +101,55 @@ const resolveMissionImageUrl = (raw: unknown): string | null => {
   }
 };
 
+const toTeaser = (mission: ExternalFrivilligkraftMissionTeaser): FrivilligkraftTeaser | null => {
+  const id = toCleanString(mission.id);
+  const title =
+    readFirstText(mission, ["header", "Header", "title", "Title"]) ?? toCleanString(mission.title);
+  const teaserDescription = readFirstText(mission, [
+    "ingress",
+    "Ingress",
+    "shortDescription",
+    "ShortDescription",
+    "teaser",
+    "Teaser",
+    "summary",
+    "Summary",
+  ]);
+  const longDescription = readFirstText(mission, ["description", "Description"]);
+
+  if (!id || !title) {
+    return null;
+  }
+
+  return {
+    id,
+    title,
+    description: toDescription(longDescription ?? undefined, teaserDescription ?? undefined),
+    organization: mission.group?.name?.trim() ?? mission.originator?.trim() ?? null,
+    location: toLocation(mission),
+    frequency:
+      mission.frequency?.trim() ??
+      mission.missionFrequency?.name?.trim() ??
+      mission.timeCommitment?.trim() ??
+      null,
+    startDate: mission.startDate?.trim() ?? null,
+    missionUrl: `https://frivilligkraft.lund.se/mission/${id}`,
+    imageUrl: resolveMissionImageUrl(mission.group?.image),
+  };
+};
+
 export class FrivilligkraftService {
   constructor(private readonly adapter: FrivilligkraftAdapter) {}
 
-  async listTeasers(): Promise<FrivilligkraftTeaser[]> {
-    const missions = await this.adapter.getMissionTeasers();
+  async listMissions(
+    query: FrivilligkraftMissionQuery,
+  ): Promise<{ missions: FrivilligkraftTeaser[]; totalCount: number }> {
+    const { data, totalCount } = await this.adapter.getOpenMissions(query);
 
-    return missions
-      .map((mission) => {
-        const id = toCleanString(mission.id);
-        const title =
-          readFirstText(mission, ["header", "Header", "title", "Title"]) ?? toCleanString(mission.title);
-        const teaserDescription = readFirstText(mission, [
-          "ingress",
-          "Ingress",
-          "shortDescription",
-          "ShortDescription",
-          "teaser",
-          "Teaser",
-          "summary",
-          "Summary",
-        ]);
-        const longDescription = readFirstText(mission, ["description", "Description"]);
-
-        if (!id || !title) {
-          return null;
-        }
-
-        return {
-          id,
-          title,
-          description: toDescription(longDescription ?? undefined, teaserDescription ?? undefined),
-          organization: mission.group?.name?.trim() ?? mission.originator?.trim() ?? null,
-          location: toLocation(mission),
-          frequency:
-            mission.frequency?.trim() ??
-            mission.missionFrequency?.name?.trim() ??
-            mission.timeCommitment?.trim() ??
-            null,
-          startDate: mission.startDate?.trim() ?? null,
-          missionUrl: `https://frivilligkraft.lund.se/mission/${id}`,
-          imageUrl: resolveMissionImageUrl(mission.group?.image),
-        };
-      })
+    const missions = data
+      .map(toTeaser)
       .filter((mission): mission is FrivilligkraftTeaser => Boolean(mission));
+
+    return { missions, totalCount };
   }
 }

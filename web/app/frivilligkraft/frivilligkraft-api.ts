@@ -10,9 +10,14 @@ export type FrivilligkraftTeaser = {
   imageUrl: string | null;
 };
 
+type FrivilligkraftMissionPage = {
+  items: FrivilligkraftTeaser[];
+  totalCount: number;
+};
+
 type FrivilligkraftApiSuccess = {
   success: true;
-  data: FrivilligkraftTeaser[];
+  data: FrivilligkraftMissionPage;
 };
 
 type FrivilligkraftApiError = {
@@ -24,30 +29,49 @@ type FrivilligkraftApiError = {
 
 type FrivilligkraftApiResponse = FrivilligkraftApiSuccess | FrivilligkraftApiError;
 
+export type FrivilligkraftMissionParams = {
+  geoLocationIds: readonly number[];
+  skip: number;
+  take: number;
+};
+
 const getAppBaseUrl = () => process.env.APP_URL ?? "http://localhost:3000";
 
-export async function getFrivilligkraftTeasers(): Promise<{
-  teasers: FrivilligkraftTeaser[];
+const buildMissionsUrl = ({ geoLocationIds, skip, take }: FrivilligkraftMissionParams): string => {
+  const params = new URLSearchParams();
+  for (const id of geoLocationIds) {
+    params.append("geoLocationIds", String(id));
+  }
+  params.set("skip", String(skip));
+  params.set("take", String(take));
+
+  const base = typeof window === "undefined" ? getAppBaseUrl() : "";
+  return `${base}/api/frivilligkraft/missions?${params.toString()}`;
+};
+
+export async function getFrivilligkraftMissions(params: FrivilligkraftMissionParams): Promise<{
+  missions: FrivilligkraftTeaser[];
+  totalCount: number;
   error: string | null;
 }> {
   try {
-    const response = await fetch(new URL("/api/frivilligkraft/teaser", getAppBaseUrl()).toString(), {
-      cache: "no-store",
-    });
+    const response = await fetch(buildMissionsUrl(params), { cache: "no-store" });
 
     const payload: FrivilligkraftApiResponse = await response.json();
 
     if (!response.ok || !payload.success) {
       return {
-        teasers: [],
+        missions: [],
+        totalCount: 0,
         error: payload.success ? "Kunde inte hämta frivilligkraftsdata." : payload.error.message,
       };
     }
 
-    return { teasers: payload.data, error: null };
+    return { missions: payload.data.items, totalCount: payload.data.totalCount, error: null };
   } catch {
     return {
-      teasers: [],
+      missions: [],
+      totalCount: 0,
       error: "Kunde inte ansluta till frivilligkraftstjänsten just nu.",
     };
   }

@@ -126,6 +126,17 @@ export const siteConfig = {
   },
 
   /**
+   * Frivilligkraft (volunteer missions) configuration.
+   * `geoLocationIds` filters Mission/Open to this area — Linero is GeoLocationId 23.
+   */
+  frivilligkraft: {
+    geoLocationIds: [23] as readonly number[],
+    startTeaserCount: 3,
+    pageSize: 20,
+    mapMaxMissions: 100,
+  },
+
+  /**
    * Geography configuration for the local area.
    * Used to filter events and items to this specific area.
    */
