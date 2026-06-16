@@ -2,7 +2,7 @@ import { siteConfig } from "../../shared/config/site.config";
 import { getEvents } from "../event/event-api";
 import FrivilligkraftCard from "../../frivilligkraft/components/frivilligkraft-card";
 import { getFrivilligkraftMissions } from "../../frivilligkraft/frivilligkraft-api";
-import SamhallsbyggeMap from "../../samhallsbygge/components/samhallsbygge-map";
+import StartMap from "./components/start-map";
 import { getSamhallsbyggeItems } from "../../samhallsbygge/samhallsbygge-api";
 import EventCard from "../event/components/event-card";
 import SectionHeader from "../../shared/ui/section-header";
@@ -57,7 +57,7 @@ export default async function StartPage() {
     getFrivilligkraftMissions({
       geoLocationIds: siteConfig.frivilligkraft.geoLocationIds,
       skip: 0,
-      take: siteConfig.frivilligkraft.startTeaserCount,
+      take: siteConfig.frivilligkraft.mapMaxMissions,
     }),
     getSamhallsbyggeItems({ area: siteConfig.areaName }),
   ]);
@@ -74,7 +74,7 @@ export default async function StartPage() {
           eventUrl: event.url,
         }))
       : cityCards;
-  const startTeasers = frivilligkraftMissions;
+  const startTeasers = frivilligkraftMissions.slice(0, siteConfig.frivilligkraft.startTeaserCount);
   const startSamhallsbygge = samhallsbyggeItems.slice(0, 3);
 
   return (
@@ -94,7 +94,11 @@ export default async function StartPage() {
           <div className="flex flex-col gap-2">
             <SectionHeader title={`Vad händer i ${siteConfig.areaName}?`} withAction />
             <p className="m-0 text-sm leading-tight text-foreground-muted">{sectionDescription}</p>
-            <SamhallsbyggeMap items={startSamhallsbygge} />
+            <StartMap
+              items={startSamhallsbygge}
+              missions={frivilligkraftError ? [] : frivilligkraftMissions}
+              events={eventError ? [] : events}
+            />
             {samhallsbyggeError ? (
               <div
                 className="max-w-130 rounded-[10px] border border-border bg-surface p-5.5 shadow-[0_1px_2px_rgb(0_0_0/0.07)] [&_p]:m-0 [&_p]:text-[15px] [&_p]:leading-snug [&_p]:text-foreground-muted"

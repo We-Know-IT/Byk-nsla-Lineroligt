@@ -1,6 +1,7 @@
 import { siteConfig } from "../../shared/config/site.config";
 import SectionHeader from "../../shared/ui/section-header";
 import FrivilligkraftMissionList from "../../frivilligkraft/components/frivilligkraft-mission-list";
+import FrivilligkraftMap from "../../frivilligkraft/components/frivilligkraft-map";
 import { getFrivilligkraftMissions } from "../../frivilligkraft/frivilligkraft-api";
 import { notFound } from "next/navigation";
 import { checkModuleEnabled } from "../../api/site-navigation/routeGuard";
@@ -11,12 +12,12 @@ export default async function FrivilligkraftPage() {
     notFound();
   }
 
-  const { geoLocationIds, pageSize } = siteConfig.frivilligkraft;
-  const { missions, totalCount, error } = await getFrivilligkraftMissions({
-    geoLocationIds,
-    skip: 0,
-    take: pageSize,
-  });
+  const { geoLocationIds, pageSize, mapMaxMissions } = siteConfig.frivilligkraft;
+  const [{ missions, totalCount, error }, mapResult] = await Promise.all([
+    getFrivilligkraftMissions({ geoLocationIds, skip: 0, take: pageSize }),
+    getFrivilligkraftMissions({ geoLocationIds, skip: 0, take: mapMaxMissions }),
+  ]);
+  const mapMissions = mapResult.error ? [] : mapResult.missions;
 
   return (
     <main className="min-h-screen bg-background">
@@ -28,6 +29,8 @@ export default async function FrivilligkraftPage() {
               Hitta aktuella volontäruppdrag i ditt närområde.
             </p>
           </div>
+
+          {mapMissions.length > 0 ? <FrivilligkraftMap missions={mapMissions} /> : null}
 
           {error ? (
             <div

@@ -133,6 +133,7 @@ export const siteConfig = {
     geoLocationIds: [23] as readonly number[],
     startTeaserCount: 3,
     pageSize: 20,
+    mapMaxMissions: 100,
   },
 
   /**

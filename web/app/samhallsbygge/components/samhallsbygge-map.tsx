@@ -4,13 +4,41 @@ import mapboxgl, { type LngLatBoundsLike, type MapMouseEvent } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo, useRef } from "react";
 import type { SamhallsbyggeGeometry, SamhallsbyggeItem } from "../samhallsbygge-api";
+import type { FrivilligkraftTeaser } from "../../frivilligkraft/frivilligkraft-api";
+import { addFrivilligkraftAggregate } from "../../frivilligkraft/components/frivilligkraft-map-layer";
+import type { EventListItem } from "../../modules/event/event-api";
+import { addEventAggregate } from "../../modules/event/components/event-map-layer";
+import { siteConfig } from "../../shared/config/site.config";
+import {
+  MAP_CATEGORY_BY_KEY,
+  type MapCategoryState,
+} from "../../shared/components/map/map-categories";
 
 type SamhallsbyggeMapProps = {
   items: SamhallsbyggeItem[];
+  frivilligkraftMissions?: FrivilligkraftTeaser[];
+  events?: EventListItem[];
+  activeCategories?: MapCategoryState;
 };
 
 const DEFAULT_CENTER: [number, number] = [13.2422, 55.6944];
+const BYGG_COLOR = MAP_CATEGORY_BY_KEY.bygg.color;
 const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+const createByggMarkerElement = (): HTMLDivElement => {
+  const element = document.createElement("div");
+  element.style.display = "grid";
+  element.style.placeItems = "center";
+  element.style.width = "30px";
+  element.style.height = "30px";
+  element.style.borderRadius = "9999px";
+  element.style.border = "2px solid #fff";
+  element.style.boxShadow = "0 1px 4px rgb(0 0 0 / 0.3)";
+  element.style.backgroundColor = BYGG_COLOR;
+  element.style.cursor = "pointer";
+  element.innerHTML = MAP_CATEGORY_BY_KEY.bygg.iconSvg;
+  return element;
+};
 
 const getCoordinatesFromGeometry = (geometry: SamhallsbyggeGeometry): [number, number][] => {
   if (geometry.type === "Point") {
@@ -53,12 +81,6 @@ const getCenter = (geometry: SamhallsbyggeGeometry): [number, number] | null => 
   return [sums[0] / coordinates.length, sums[1] / coordinates.length];
 };
 
-const colorBySource: Record<SamhallsbyggeItem["source"], string> = {
-  "bygglov-kungorelse": "#2563eb",
-  grannhorande: "#6d28d9",
-  detaljplan: "#047857",
-};
-
 const escapeHtml = (value: string): string =>
   value
     .replaceAll("&", "&amp;")
@@ -85,11 +107,22 @@ const buildPopupHtml = (item: SamhallsbyggeItem): string => {
   `;
 };
 
-export default function SamhallsbyggeMap({ items }: SamhallsbyggeMapProps) {
+const ALL_CATEGORIES_ACTIVE: MapCategoryState = { bygg: true, hjalptill: true, event: true };
+
+export default function SamhallsbyggeMap({
+  items,
+  frivilligkraftMissions,
+  events,
+  activeCategories = ALL_CATEGORIES_ACTIVE,
+}: SamhallsbyggeMapProps) {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const hasFittedRef = useRef(false);
 
   const mapItems = useMemo(() => items.filter((item) => item.geometry), [items]);
+  const missions = useMemo(() => frivilligkraftMissions ?? [], [frivilligkraftMissions]);
+  const eventItems = useMemo(() => events ?? [], [events]);
+  const { bygg: showBygg, hjalptill: showHjalptill, event: showEvent } = activeCategories;
 
   useEffect(() => {
     if (!containerRef.current || !token || mapRef.current) {
@@ -125,97 +158,112 @@ export default function SamhallsbyggeMap({ items }: SamhallsbyggeMapProps) {
     const coordinatesForBounds: [number, number][] = [];
 
     const syncMapData = () => {
-      for (const item of mapItems) {
-        if (!item.geometry) {
-          continue;
-        }
-        const center = getCenter(item.geometry);
-        if (center) {
-          coordinatesForBounds.push(center);
-          const markerElement = document.createElement("div");
-          markerElement.style.width = "12px";
-          markerElement.style.height = "12px";
-          markerElement.style.borderRadius = "9999px";
-          markerElement.style.border = "2px solid #fff";
-          markerElement.style.boxShadow = "0 1px 3px rgb(0 0 0 / 0.2)";
-          markerElement.style.backgroundColor = colorBySource[item.source];
-          markerElement.title = item.title;
-          const marker = new mapboxgl.Marker(markerElement)
-            .setLngLat(center)
-            .setPopup(new mapboxgl.Popup({ offset: 14 }).setHTML(buildPopupHtml(item)))
-            .addTo(map);
-          markers.push(marker);
-        }
-
-        if (item.geometry.type === "Polygon" || item.geometry.type === "MultiPolygon") {
-          const sourceId = `samhallsbygge-polygon-${item.id}`;
-          const fillLayerId = `${sourceId}-fill`;
-          const lineLayerId = `${sourceId}-line`;
-
-          map.addSource(sourceId, {
-            type: "geojson",
-            data: {
-              type: "Feature",
-              geometry: item.geometry,
-              properties: { source: item.source },
-            },
-          });
-
-          map.addLayer({
-            id: fillLayerId,
-            type: "fill",
-            source: sourceId,
-            paint: {
-              "fill-color": colorBySource[item.source],
-              "fill-opacity": 0.12,
-            },
-          });
-
-          map.addLayer({
-            id: lineLayerId,
-            type: "line",
-            source: sourceId,
-            paint: {
-              "line-color": colorBySource[item.source],
-              "line-width": 2,
-            },
-          });
-
-          const openPolygonPopup = (event: MapMouseEvent) => {
-            new mapboxgl.Popup({ closeButton: true, closeOnClick: true, maxWidth: "320px" })
-              .setLngLat(event.lngLat)
-              .setHTML(buildPopupHtml(item))
+      if (showBygg) {
+        for (const item of mapItems) {
+          if (!item.geometry) {
+            continue;
+          }
+          const center = getCenter(item.geometry);
+          if (center) {
+            coordinatesForBounds.push(center);
+            const markerElement = createByggMarkerElement();
+            markerElement.title = item.title;
+            const marker = new mapboxgl.Marker(markerElement)
+              .setLngLat(center)
+              .setPopup(new mapboxgl.Popup({ offset: 18 }).setHTML(buildPopupHtml(item)))
               .addTo(map);
-          };
+            markers.push(marker);
+          }
 
-          const onMouseEnter = () => {
-            map.getCanvas().style.cursor = "pointer";
-          };
-          const onMouseLeave = () => {
-            map.getCanvas().style.cursor = "";
-          };
+          if (item.geometry.type === "Polygon" || item.geometry.type === "MultiPolygon") {
+            const sourceId = `samhallsbygge-polygon-${item.id}`;
+            const fillLayerId = `${sourceId}-fill`;
+            const lineLayerId = `${sourceId}-line`;
 
-          map.on("click", fillLayerId, openPolygonPopup);
-          map.on("mouseenter", fillLayerId, onMouseEnter);
-          map.on("mouseleave", fillLayerId, onMouseLeave);
+            map.addSource(sourceId, {
+              type: "geojson",
+              data: {
+                type: "Feature",
+                geometry: item.geometry,
+                properties: { source: item.source },
+              },
+            });
 
-          cleanupListeners.push(() => {
-            map.off("click", fillLayerId, openPolygonPopup);
-            map.off("mouseenter", fillLayerId, onMouseEnter);
-            map.off("mouseleave", fillLayerId, onMouseLeave);
-          });
+            map.addLayer({
+              id: fillLayerId,
+              type: "fill",
+              source: sourceId,
+              paint: {
+                "fill-color": BYGG_COLOR,
+                "fill-opacity": 0.12,
+              },
+            });
 
-          polygonSourceIds.push(sourceId);
-          polygonLayerIds.push(fillLayerId, lineLayerId);
+            map.addLayer({
+              id: lineLayerId,
+              type: "line",
+              source: sourceId,
+              paint: {
+                "line-color": BYGG_COLOR,
+                "line-width": 2,
+              },
+            });
+
+            const openPolygonPopup = (event: MapMouseEvent) => {
+              new mapboxgl.Popup({ closeButton: true, closeOnClick: true, maxWidth: "320px" })
+                .setLngLat(event.lngLat)
+                .setHTML(buildPopupHtml(item))
+                .addTo(map);
+            };
+
+            const onMouseEnter = () => {
+              map.getCanvas().style.cursor = "pointer";
+            };
+            const onMouseLeave = () => {
+              map.getCanvas().style.cursor = "";
+            };
+
+            map.on("click", fillLayerId, openPolygonPopup);
+            map.on("mouseenter", fillLayerId, onMouseEnter);
+            map.on("mouseleave", fillLayerId, onMouseLeave);
+
+            cleanupListeners.push(() => {
+              map.off("click", fillLayerId, openPolygonPopup);
+              map.off("mouseenter", fillLayerId, onMouseEnter);
+              map.off("mouseleave", fillLayerId, onMouseLeave);
+            });
+
+            polygonSourceIds.push(sourceId);
+            polygonLayerIds.push(fillLayerId, lineLayerId);
+          }
         }
       }
 
-      if (coordinatesForBounds.length > 1) {
+      if (showHjalptill && missions.length > 0) {
+        const removeAggregate = addFrivilligkraftAggregate(map, {
+          missions,
+          center: siteConfig.geography.center,
+        });
+        coordinatesForBounds.push(siteConfig.geography.center);
+        cleanupListeners.push(removeAggregate);
+      }
+
+      if (showEvent && eventItems.length > 0) {
+        const removeAggregate = addEventAggregate(map, {
+          events: eventItems,
+          center: siteConfig.geography.center,
+        });
+        coordinatesForBounds.push(siteConfig.geography.center);
+        cleanupListeners.push(removeAggregate);
+      }
+
+      if (!hasFittedRef.current && coordinatesForBounds.length > 1) {
         const bounds = coordinatesForBounds.reduce(
           (acc, [lng, lat]) => acc.extend([lng, lat]),
           new mapboxgl.LngLatBounds(coordinatesForBounds[0], coordinatesForBounds[0]),
         );
         map.fitBounds(bounds as LngLatBoundsLike, { padding: 40, maxZoom: 14 });
+        hasFittedRef.current = true;
       }
     };
 
@@ -254,7 +302,7 @@ export default function SamhallsbyggeMap({ items }: SamhallsbyggeMapProps) {
         }
       }
     };
-  }, [mapItems]);
+  }, [mapItems, missions, eventItems, showBygg, showHjalptill, showEvent]);
 
   if (!token) {
     return (
